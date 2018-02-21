@@ -3,10 +3,12 @@ package com.jiameng.spansample;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 
 import com.jiameng.lottery.square.LuckyMonkeyPanelView;
 import com.jiameng.lottery.square.PanelStateListener;
@@ -16,34 +18,53 @@ import java.util.Random;
 public class LotterySquareActivity extends AppCompatActivity {
     private static final String TAG = "LotterySquareActivity";
     private LuckyMonkeyPanelView luckyPanel;
+    private ImageView fortuneSound;
     private Button btnAction;
 
     private SoundPool soundPool = null;
     private int explosionId = 0;    //内存加载ID
     private int playSourceId = 0;    //播放ID
+    private boolean isPlaySound = true;    //播放ID
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lottery_square);
         luckyPanel = findViewById(R.id.lucky_panel);
+        fortuneSound = findViewById(R.id.fortune_sound);
         btnAction = findViewById(R.id.btn_action);
+
         luckyPanel.setPanelStateListener(new PanelStateListener() {
             @Override
             public void onPanelStateStart() {
-                //播放音效
-                soundBegin();
                 Log.e(TAG, "方法名>>onPanelStateStart()>>>>" + "转盘开始转动");
+                //播放音效
+                if (isPlaySound) {
+                    soundBegin();
+                }
             }
 
             @Override
             public void onPanelStateStop() {
-                //在此处进行翻牌动画|弹窗
-                //停止播放音效
-                soundStop();
                 Log.e(TAG, "方法名>>onPanelStateStop()>>>>" + "转盘停止转动");
+                //根据业务需要在此处进行-> 动画|弹窗
+                luckyPanel.excutePanelViewAnim(LotterySquareActivity.this);
+                //停止音效
+                soundStop();
             }
         });
+        fortuneSound.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isPlaySound) {
+                    fortuneSound.setImageDrawable(ContextCompat.getDrawable(LotterySquareActivity.this, R.drawable.ic_volume_off_24dp));
+                } else {
+                    fortuneSound.setImageDrawable(ContextCompat.getDrawable(LotterySquareActivity.this, R.drawable.ic_volume_up_24dp));
+                }
+                isPlaySound = !isPlaySound;
+            }
+        });
+
         btnAction.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -58,6 +79,7 @@ public class LotterySquareActivity extends AppCompatActivity {
             }
         });
         this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
     }
 
     @Override

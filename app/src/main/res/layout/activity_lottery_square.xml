@@ -13,44 +13,62 @@
         android:overScrollMode="never">
 
         <TextView
+            android:id="@+id/user_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="@string/lucky_monkey_title"
-            android:textColor="@android:color/white"
-            android:textSize="30sp" />
+            android:textColor="#ffe823"
+            android:textSize="24sp" />
 
-        <LinearLayout
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="match_parent"
+                android:id="@+id/fortune_spend"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
                 android:gravity="center"
-                android:text="5"
+                android:text="50"
                 android:textColor="#ffe823"
                 android:textSize="18sp" />
 
             <TextView
-                android:layout_width="match_parent"
+                android:id="@+id/fortune_spend_text"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
+                android:layout_toEndOf="@+id/fortune_spend"
+                android:layout_toRightOf="@+id/fortune_spend"
                 android:gravity="center"
-                android:paddingLeft="5dp"
-                android:text="@string/lucky_monkey_times_left"
+                android:text="@string/lucky_monkey_spend"
                 android:textColor="@android:color/white"
-                android:textSize="18sp" />
+                android:textSize="16sp" />
 
-        </LinearLayout>
+            <ImageView
+                android:id="@+id/fortune_sound"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="40dp"
+                android:layout_toRightOf="@+id/fortune_spend_text"
+                android:gravity="center"
+                android:src="@drawable/ic_volume_up_24dp" />
+        </RelativeLayout>
 
 
         <RelativeLayout
             android:layout_width="316dp"
             android:layout_height="316dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="48dp">
+            android:layout_marginTop="10dp">
 
             <com.jiameng.lottery.square.LuckyMonkeyPanelView
                 android:id="@+id/lucky_panel"
@@ -74,13 +92,12 @@
             android:layout_width="240dp"
             android:layout_height="40dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="10dp"
             android:background="@drawable/bg_lucky_monkey_fortune_list"
             android:gravity="center"
-            android:text="@string/lucky_monkey_fortune_list"
+            android:text="@string/lucky_monkey_fortune_type"
             android:textColor="@android:color/white"
             android:textSize="16sp" />
-
 
     </LinearLayout>
 </FrameLayout>

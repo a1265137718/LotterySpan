@@ -1,15 +1,22 @@
 package com.jiameng.lottery.square;
 
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.AttrRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import com.jiameng.mr_jr.lottery_square.R;
 
@@ -202,11 +209,86 @@ public class LuckyMonkeyPanelView extends FrameLayout {
         mHandler.sendEmptyMessageDelayed(START_GAME, getInterruptTime());
     }
 
+    /**
+     * 获取当前停止的PanelItemView并进行动画操作
+     *
+     * @param context
+     */
+    public void excutePanelViewAnim(Context context) {
+        setAnimators(context);
+        initBackColor(context);//测试翻牌后的背景颜色
+        PanelItemView panelItemView = (PanelItemView) itemViewArr[stayIndex];
+        RelativeLayout itemFront = panelItemView.getItemFront();
+        RelativeLayout itemBack = panelItemView.getItemBack();
+        setCameraDistance(context, itemFront, itemBack);
+        setFlipCard(itemFront, itemBack);
+    }
+
+    public void initBackColor(Context context) {
+        for (ItemView itemView : itemViewArr) {
+            PanelItemView panelItemView = (PanelItemView) itemView;
+            panelItemView.getItemBackImg()
+                    .setImageDrawable(ContextCompat.getDrawable(context, R.drawable.bg_lucky_monkey_panel));
+        }
+    }
+
+    private boolean mIsShowBack;
+    private AnimatorSet mLeftInSet;
+    private AnimatorSet mRightOutSet;
+
+
+    // 设置动画
+    public void setAnimators(Context context) {
+        mLeftInSet = (AnimatorSet) AnimatorInflater.loadAnimator(context, R.animator.anim_in);
+        mRightOutSet = (AnimatorSet) AnimatorInflater.loadAnimator(context, R.animator.anim_out);
+
+        // 设置点击事件
+        mRightOutSet.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                super.onAnimationStart(animation);
+            }
+        });
+        mLeftInSet.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+            }
+        });
+    }
+
+    // 改变视角距离, 贴近屏幕
+    public static void setCameraDistance(Context context, RelativeLayout mCardFront, RelativeLayout mCardBack) {
+        int distance = 16000;
+        float scale = context.getResources().getDisplayMetrics().density * distance;
+        mCardFront.setCameraDistance(scale);
+        mCardBack.setCameraDistance(scale);
+    }
+
+
+    // 翻转卡片
+    public void setFlipCard(View mCardFront, View mCardBack) {
+        // 正面朝上
+        if (!mIsShowBack) {
+            mRightOutSet.setTarget(mCardFront);
+            mLeftInSet.setTarget(mCardBack);
+            mRightOutSet.start();
+            mLeftInSet.start();
+        } else { // 背面朝上
+            mRightOutSet.setTarget(mCardBack);
+            mLeftInSet.setTarget(mCardFront);
+            mRightOutSet.start();
+            mLeftInSet.start();
+        }
+        mIsShowBack = !mIsShowBack;
+    }
+
     public void tryToStop(int position) {
         stayIndex = position;
         Log.e("LuckyMonkeyPanelView", "====stayIndex===" + stayIndex);
         isTryToStop = true;
     }
+
     private PanelStateListener panelStateListener;
 
     public void setPanelStateListener(PanelStateListener panelStateListener) {
