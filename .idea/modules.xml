@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/CaoHang-LotterySpanView-master.iml" filepath="$PROJECT_DIR$/CaoHang-LotterySpanView-master.iml" />
+      <module fileurl="file://$PROJECT_DIR$/LotterySpanView.iml" filepath="$PROJECT_DIR$/LotterySpanView.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/lottery/lottery.iml" filepath="$PROJECT_DIR$/lottery/lottery.iml" />
+      <module fileurl="file://$PROJECT_DIR$/lottery_circle/lottery.iml" filepath="$PROJECT_DIR$/lottery_circle/lottery.iml" />
+      <module fileurl="file://$PROJECT_DIR$/lottery_square/lottery_square.iml" filepath="$PROJECT_DIR$/lottery_square/lottery_square.iml" />
+    </modules>
+  </component>
+</project>
