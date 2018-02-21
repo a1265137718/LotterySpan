@@ -6,16 +6,16 @@
     android:orientation="vertical">
 
     <ImageView
-        android:id="@+id/bg_1"
+        android:id="@+id/marquee_state_one"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/square_bubble0" />
+        android:src="@drawable/square_marquee_state_one" />
 
     <ImageView
-        android:id="@+id/bg_2"
+        android:id="@+id/marquee_state_two"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/square_bubble1"
+        android:src="@drawable/marquee_state_two"
         android:visibility="gone" />
 
     <LinearLayout

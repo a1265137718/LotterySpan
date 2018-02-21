@@ -1,18 +1,24 @@
 package com.jiameng.lottery.square;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.AttrRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.jiameng.mr_jr.lottery_square.R;
 
+import java.lang.ref.WeakReference;
+
+
 /*
    eg:
-     if (!lucky_panel.isGameRunning()) {
+     if (!luckyPanel.isGameRunning()) {
         luckyPanel.startGame();
      } else {
         int stayIndex = new Random().nextInt(8);
@@ -23,13 +29,13 @@ import com.jiameng.mr_jr.lottery_square.R;
 
 public class LuckyMonkeyPanelView extends FrameLayout {
 
+    public static final int START_MARQUEE = 1001;
+    public static final int START_GAME = 1002;
 
-    private ImageView bg_1;
-    private ImageView bg_2;
+    private ImageView marqueeStateOne;
+    private ImageView marqueeStateTwo;
 
-    private PanelItemView itemView1, itemView2, itemView3,
-            itemView4, itemView6,
-            itemView7, itemView8, itemView9;
+    private PanelItemView itemView1, itemView2, itemView3, itemView4, itemView6, itemView7, itemView8, itemView9;
 
     private ItemView[] itemViewArr = new ItemView[8];
     private int currentIndex = 0;
@@ -71,16 +77,16 @@ public class LuckyMonkeyPanelView extends FrameLayout {
     }
 
     private void setupView() {
-        bg_1 = (ImageView) findViewById(R.id.bg_1);
-        bg_2 = (ImageView) findViewById(R.id.bg_2);
-        itemView1 = (PanelItemView) findViewById(R.id.item1);
-        itemView2 = (PanelItemView) findViewById(R.id.item2);
-        itemView3 = (PanelItemView) findViewById(R.id.item3);
-        itemView4 = (PanelItemView) findViewById(R.id.item4);
-        itemView6 = (PanelItemView) findViewById(R.id.item6);
-        itemView7 = (PanelItemView) findViewById(R.id.item7);
-        itemView8 = (PanelItemView) findViewById(R.id.item8);
-        itemView9 = (PanelItemView) findViewById(R.id.item9);
+        marqueeStateOne = findViewById(R.id.marquee_state_one);
+        marqueeStateTwo = findViewById(R.id.marquee_state_two);
+        itemView1 = findViewById(R.id.item1);
+        itemView2 = findViewById(R.id.item2);
+        itemView3 = findViewById(R.id.item3);
+        itemView4 = findViewById(R.id.item4);
+        itemView6 = findViewById(R.id.item6);
+        itemView7 = findViewById(R.id.item7);
+        itemView8 = findViewById(R.id.item8);
+        itemView9 = findViewById(R.id.item9);
 
         itemViewArr[0] = itemView4;
         itemViewArr[1] = itemView1;
@@ -98,35 +104,70 @@ public class LuckyMonkeyPanelView extends FrameLayout {
         isTryToStop = false;
     }
 
-    private void startMarquee() {
-        isMarqueeRunning = true;
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (isMarqueeRunning) {
-                    try {
-                        Thread.sleep(250);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+    private MarqueeRunningHandler mHandler = new MarqueeRunningHandler(this);
 
-                    post(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (bg_1 != null && bg_2 != null) {
-                                if (VISIBLE == bg_1.getVisibility()) {
-                                    bg_1.setVisibility(GONE);
-                                    bg_2.setVisibility(VISIBLE);
-                                } else {
-                                    bg_1.setVisibility(VISIBLE);
-                                    bg_2.setVisibility(GONE);
-                                }
+    private static class MarqueeRunningHandler extends Handler {
+        private WeakReference<LuckyMonkeyPanelView> panelView;
+
+        public MarqueeRunningHandler(LuckyMonkeyPanelView luckyMonkeyPanelView) {
+            panelView = new WeakReference<>(luckyMonkeyPanelView);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case START_MARQUEE: {
+                    LuckyMonkeyPanelView panelView = this.panelView.get();
+                    if (panelView != null) {
+                        if (panelView.marqueeStateOne != null && panelView.marqueeStateTwo != null) {
+                            if (VISIBLE == panelView.marqueeStateOne.getVisibility()) {
+                                panelView.marqueeStateOne.setVisibility(GONE);
+                                panelView.marqueeStateTwo.setVisibility(VISIBLE);
+                            } else {
+                                panelView.marqueeStateOne.setVisibility(VISIBLE);
+                                panelView.marqueeStateTwo.setVisibility(GONE);
                             }
                         }
-                    });
+                        if (panelView.isMarqueeRunning) {
+                            panelView.mHandler.sendEmptyMessageDelayed(START_MARQUEE, 250);
+                        }
+                    }
                 }
+                break;
+                case START_GAME: {
+                    LuckyMonkeyPanelView panelView = this.panelView.get();
+                    if (panelView != null) {
+                        int preIndex = panelView.currentIndex;
+                        panelView.currentIndex++;
+                        if (panelView.currentIndex >= panelView.itemViewArr.length) {
+                            panelView.currentIndex = 0;
+                        }
+                        panelView.itemViewArr[preIndex].setFocus(false);
+                        panelView.itemViewArr[panelView.currentIndex].setFocus(true);
+
+                        if (panelView.isTryToStop && panelView.currentSpeed == DEFAULT_SPEED
+                                && panelView.stayIndex == panelView.currentIndex) {
+                            panelView.isGameRunning = false;
+                            if (panelView.panelStateListener != null) {
+                                panelView.panelStateListener.onPanelStateStop();
+                            }
+                        }
+                        if (panelView.isGameRunning) {
+                            panelView.mHandler.sendEmptyMessageDelayed(START_GAME, panelView.getInterruptTime());
+                        }
+                    }
+                }
+                break;
+                default:
+                    break;
             }
-        }).start();
+        }
+    }
+
+    private void startMarquee() {
+        isMarqueeRunning = true;
+        mHandler.sendEmptyMessageDelayed(START_MARQUEE, 250);
     }
 
     private long getInterruptTime() {
@@ -152,44 +193,23 @@ public class LuckyMonkeyPanelView extends FrameLayout {
     }
 
     public void startGame() {
+        if (panelStateListener != null) {
+            panelStateListener.onPanelStateStart();
+        }
         isGameRunning = true;
         isTryToStop = false;
         currentSpeed = DEFAULT_SPEED;
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (isGameRunning) {
-                    try {
-                        Thread.sleep(getInterruptTime());
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                    post(new Runnable() {
-                        @Override
-                        public void run() {
-                            int preIndex = currentIndex;
-                            currentIndex++;
-                            if (currentIndex >= itemViewArr.length) {
-                                currentIndex = 0;
-                            }
-
-                            itemViewArr[preIndex].setFocus(false);
-                            itemViewArr[currentIndex].setFocus(true);
-
-                            if (isTryToStop && currentSpeed == DEFAULT_SPEED && stayIndex == currentIndex) {
-                                isGameRunning = false;
-                            }
-                        }
-                    });
-                }
-            }
-        }).start();
+        mHandler.sendEmptyMessageDelayed(START_GAME, getInterruptTime());
     }
 
     public void tryToStop(int position) {
         stayIndex = position;
+        Log.e("LuckyMonkeyPanelView", "====stayIndex===" + stayIndex);
         isTryToStop = true;
     }
+    private PanelStateListener panelStateListener;
 
+    public void setPanelStateListener(PanelStateListener panelStateListener) {
+        this.panelStateListener = panelStateListener;
+    }
 }
