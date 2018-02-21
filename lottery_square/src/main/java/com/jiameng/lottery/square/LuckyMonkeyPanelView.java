@@ -38,6 +38,7 @@ public class LuckyMonkeyPanelView extends FrameLayout {
 
     public static final int START_MARQUEE = 1001;
     public static final int START_GAME = 1002;
+    public static final int RECOVER_IMG = 1003;
 
     private ImageView marqueeStateOne;
     private ImageView marqueeStateTwo;
@@ -166,6 +167,16 @@ public class LuckyMonkeyPanelView extends FrameLayout {
                     }
                 }
                 break;
+                case RECOVER_IMG:
+                    LuckyMonkeyPanelView panelView = this.panelView.get();
+                    if (panelView != null) {
+                        for (ItemView itemView : panelView.itemViewArr) {
+                            PanelItemView panelItemView = (PanelItemView) itemView;
+                            panelItemView.getItemBack().setVisibility(INVISIBLE);
+                            panelItemView.getItemFront().setVisibility(VISIBLE);
+                        }
+                    }
+                    break;
                 default:
                     break;
             }
@@ -203,6 +214,9 @@ public class LuckyMonkeyPanelView extends FrameLayout {
         if (panelStateListener != null) {
             panelStateListener.onPanelStateStart();
         }
+        mHandler.sendEmptyMessage(RECOVER_IMG);
+        initBackColor();//测试翻牌后的背景颜色
+
         isGameRunning = true;
         isTryToStop = false;
         currentSpeed = DEFAULT_SPEED;
@@ -216,7 +230,6 @@ public class LuckyMonkeyPanelView extends FrameLayout {
      */
     public void excutePanelViewAnim(Context context) {
         setAnimators(context);
-        initBackColor(context);//测试翻牌后的背景颜色
         PanelItemView panelItemView = (PanelItemView) itemViewArr[stayIndex];
         RelativeLayout itemFront = panelItemView.getItemFront();
         RelativeLayout itemBack = panelItemView.getItemBack();
@@ -224,11 +237,11 @@ public class LuckyMonkeyPanelView extends FrameLayout {
         setFlipCard(itemFront, itemBack);
     }
 
-    public void initBackColor(Context context) {
+    public void initBackColor( ) {
         for (ItemView itemView : itemViewArr) {
             PanelItemView panelItemView = (PanelItemView) itemView;
             panelItemView.getItemBackImg()
-                    .setImageDrawable(ContextCompat.getDrawable(context, R.drawable.bg_lucky_monkey_panel));
+                    .setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.bg_lucky_monkey_panel));
         }
     }
 
